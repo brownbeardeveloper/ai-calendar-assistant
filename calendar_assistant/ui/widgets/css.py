@@ -1,64 +1,56 @@
 """
-Textual UI styling for the Calendar Assistant.
+CSS styles for the Calendar Assistant UI.
 """
 
-# Main application styles
-APP_CSS = """
-CalendarApp {
-    background: $surface;
+CSS = """
+#chat-section, #calendar-section {
+    width: 1fr;
+    height: 100%;
 }
 
-Screen {
-    padding: 1 2;
+.column {
+    padding: 1;
+    height: 100%;
 }
-"""
 
-# Calendar screen specific styles
-CALENDAR_CSS = """
-CalendarDisplay {
-    width: 100%;
-    height: 70%;
+#chat-container {
+    height: 1fr;
+    overflow-y: auto;
+    padding: 1;
     border: solid $primary;
+    border-top: solid $primary;
+    border-right: solid $primary;
+    border-left: solid $primary;
+    border-bottom: none;
+}
+
+#chat-input {
+    height: 3;
+    margin: 0 1;
+    border: solid $primary;
+}
+
+CalendarDisplay {
+    height: 60%;
+    border: solid $primary;
+    margin: 0 0 1 0;
 }
 
 EventList {
-    width: 100%;
-    height: 30%;
+    height: 40%;
     border: solid $primary;
 }
-"""
 
-# Chat screen specific styles
-CHAT_CSS = """
-MessageWidget {
-    margin: 1 0;
-    padding: 1 2;
-    border-radius: 1;
+/* Special styling for user/assistant messages */
+.user {
+    margin: 1;
+    width: 80%;
+    align-horizontal: right;
 }
 
-MessageWidget.user {
-    background: $primary-darken-1;
-    color: $text;
-}
-
-MessageWidget.assistant {
-    background: $primary-lighten-1;
-    color: $text;
+.assistant {
+    margin: 1;
+    width: 80%;
+    align-horizontal: left;
 }
 """
-
-# Settings screen specific styles
-SETTINGS_CSS = """
-SettingsScreen {
-    layout: grid;
-    grid-size: 2;
-    grid-gutter: 1 2;
-    padding: 1;
-}
-"""
-
-
-def get_combined_css():
-    """Get combined CSS styles for the application."""
-    return "\n".join([APP_CSS, CALENDAR_CSS, CHAT_CSS, SETTINGS_CSS])
-    pass
