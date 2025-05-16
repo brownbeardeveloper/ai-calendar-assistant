@@ -16,7 +16,6 @@ class CalendarModel:
         """Initialize the calendar model with storage file path."""
         self.storage_file = storage_file or "data/calendar_data.json"
         self.events = []
-        pass
 
     def load_events(self):
         """Load events from storage."""
@@ -28,21 +27,20 @@ class CalendarModel:
         except Exception as e:
             print(f"Error loading events: {e}")
             return []
-        pass
 
     def save_events(self):
         """Save events to storage."""
         try:
-            # Ensure directory exists
             os.makedirs(os.path.dirname(self.storage_file), exist_ok=True)
 
             with open(self.storage_file, "w") as f:
                 json.dump(self.events, f, indent=2)
+
             return True
+
         except Exception as e:
             print(f"Error saving events: {e}")
             return False
-        pass
 
     def create_event(self, title, start_time, end_time, description=None):
         """Create a new calendar event."""
@@ -60,7 +58,6 @@ class CalendarModel:
         self.events.append(event)
         self.save_events()
         return event
-        pass
 
     def get_event(self, event_id):
         """Get a calendar event by ID."""
@@ -68,7 +65,6 @@ class CalendarModel:
             if event.get("id") == event_id:
                 return event
         return None
-        pass
 
     def update_event(self, event_id, **update_fields):
         """Update a calendar event."""
@@ -83,7 +79,6 @@ class CalendarModel:
                 self.save_events()
                 return self.events[i]
         return None
-        pass
 
     def delete_event(self, event_id):
         """Delete a calendar event."""
@@ -93,7 +88,6 @@ class CalendarModel:
                 self.save_events()
                 return deleted_event
         return None
-        pass
 
     def query_events(self, query=None, start_date=None, end_date=None):
         """Query events based on search parameters."""
@@ -122,4 +116,3 @@ class CalendarModel:
                 results.append(event)
 
         return results
-        pass
