@@ -5,7 +5,6 @@ Entry point of the Calendar Assistant application.
 
 import traceback
 import sys
-import os
 from calendar_assistant.ui.app import CalendarApp
 
 
