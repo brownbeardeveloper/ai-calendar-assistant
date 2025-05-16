@@ -5,7 +5,6 @@ Handles storage and retrieval of chat messages.
 
 import json
 import os
-from pathlib import Path
 from datetime import datetime
 
 

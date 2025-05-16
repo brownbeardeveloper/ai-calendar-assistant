@@ -5,13 +5,32 @@ Main application class for the Calendar Assistant UI.
 import asyncio
 from textual.app import App
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Header, Footer, Input
+from textual.widgets import Header, Footer, Input, Static
 from textual.binding import Binding
 
 from calendar_assistant.ui.widgets.message import MessageWidget
 from calendar_assistant.ui.widgets.event_list import EventList
 from calendar_assistant.ui.widgets.calendar_display import CalendarDisplay
 from calendar_assistant.ui.widgets.css import CSS
+
+
+class TabButton(Static):
+    """A button for the tab bar."""
+
+    def __init__(self, label, tab_id, active=False, **kwargs):
+        """Initialize the tab button."""
+        super().__init__(label, **kwargs)
+        self.tab_id = tab_id
+        self.active = active
+        self.add_class("tab")
+        if active:
+            self.add_class("tab-active")
+        else:
+            self.add_class("tab-inactive")
+
+    def on_click(self):
+        """Handle click event."""
+        self.app.switch_to_tab(self.tab_id)
 
 
 class CalendarApp(App):
@@ -22,6 +41,8 @@ class CalendarApp(App):
     BINDINGS = [
         Binding("d", "toggle_dark", "Toggle Dark Mode"),
         Binding("q", "quit", "Quit"),
+        Binding("1", "show_chat", "Chat Tab"),
+        Binding("2", "show_calendar", "Calendar Tab"),
     ]
 
     def __init__(
@@ -40,6 +61,8 @@ class CalendarApp(App):
         self.settings_controller = settings_controller
         # Sample data for testing
         self.sample_events = []
+        # Current active tab
+        self.active_tab = "chat"
 
     async def on_mount(self):
         """Handle the application mount event."""
@@ -52,6 +75,84 @@ class CalendarApp(App):
         # Set up input handler
         input_widget = self.query_one("#chat-input")
         input_widget.focus()
+
+        # Call setup_tabs after mount to ensure all widgets are ready
+        self.call_after_refresh(self.setup_tabs)
+
+    def setup_tabs(self):
+        """Set up the tab buttons."""
+        try:
+            chat_tab = self.query_one("#chat-tab")
+            calendar_tab = self.query_one("#calendar-tab")
+            chat_content = self.query_one("#chat-tab-content")
+            calendar_content = self.query_one("#calendar-tab-content")
+
+            # Set initial active tab
+            if self.active_tab == "chat":
+                chat_tab.add_class("tab-active")
+                chat_tab.remove_class("tab-inactive")
+                calendar_tab.add_class("tab-inactive")
+                calendar_tab.remove_class("tab-active")
+
+                chat_content.remove_class("hidden")
+                calendar_content.add_class("hidden")
+            else:
+                calendar_tab.add_class("tab-active")
+                calendar_tab.remove_class("tab-inactive")
+                chat_tab.add_class("tab-inactive")
+                chat_tab.remove_class("tab-active")
+
+                calendar_content.remove_class("hidden")
+                chat_content.add_class("hidden")
+        except Exception as e:
+            self.log(f"Error in setup_tabs: {e}")
+
+    def switch_to_tab(self, tab_id):
+        """Switch to the specified tab."""
+        if tab_id == self.active_tab:
+            return
+
+        self.log(f"Switching to tab: {tab_id}")
+        self.active_tab = tab_id
+
+        # Update tab UI
+        try:
+            chat_tab = self.query_one("#chat-tab")
+            calendar_tab = self.query_one("#calendar-tab")
+            chat_content = self.query_one("#chat-tab-content")
+            calendar_content = self.query_one("#calendar-tab-content")
+
+            if tab_id == "chat":
+                chat_tab.add_class("tab-active")
+                chat_tab.remove_class("tab-inactive")
+                calendar_tab.add_class("tab-inactive")
+                calendar_tab.remove_class("tab-active")
+
+                chat_content.remove_class("hidden")
+                calendar_content.add_class("hidden")
+
+                # Focus chat input
+                self.query_one("#chat-input").focus()
+            else:
+                calendar_tab.add_class("tab-active")
+                calendar_tab.remove_class("tab-inactive")
+                chat_tab.add_class("tab-inactive")
+                chat_tab.remove_class("tab-active")
+
+                calendar_content.remove_class("hidden")
+                chat_content.add_class("hidden")
+
+            self.refresh()
+        except Exception as e:
+            self.log(f"Error switching tabs: {e}")
+
+    async def action_show_chat(self):
+        """Switch to chat tab."""
+        self.switch_to_tab("chat")
+
+    async def action_show_calendar(self):
+        """Switch to calendar tab."""
+        self.switch_to_tab("calendar")
 
     async def on_ready(self):
         """Called once when the app is ready."""
@@ -76,37 +177,44 @@ class CalendarApp(App):
                     with open("data/calendar_data.json", "r") as f:
                         self.sample_events = json.load(f)
 
-            # Update calendar and event list with sample data
-            calendar_display = self.query_one(CalendarDisplay)
-            if calendar_display:
-                calendar_display.highlight_events(self.sample_events)
+            # Update calendar display in calendar view
+            try:
+                calendar_display = self.query_one(CalendarDisplay)
+                if calendar_display:
+                    calendar_display.highlight_events(self.sample_events)
 
-            event_list = self.query_one(EventList)
-            if event_list:
-                event_list.update_events(self.sample_events)
+                # Update event list in calendar view
+                event_list = self.query_one(EventList)
+                if event_list:
+                    event_list.update_events(self.sample_events)
+            except Exception as e:
+                self.log(f"Error updating calendar: {e}")
 
             # Add sample messages for testing
-            chat_container = self.query_one("#chat-container")
-            if chat_container:
-                chat_container.mount(
-                    MessageWidget(
-                        "User",
-                        "Hello, can you help me manage my calendar?",
-                        is_user=True,
+            try:
+                chat_container = self.query_one("#chat-container")
+                if chat_container:
+                    chat_container.mount(
+                        MessageWidget(
+                            "User",
+                            "Hello, can you help me manage my calendar?",
+                            is_user=True,
+                        )
                     )
-                )
-                chat_container.mount(
-                    MessageWidget(
-                        "Assistant",
-                        "Yes, I can help you manage your calendar. What would you like to do?",
+                    chat_container.mount(
+                        MessageWidget(
+                            "Assistant",
+                            "Yes, I can help you manage your calendar. What would you like to do?",
+                        )
                     )
-                )
 
-                # Scroll to bottom
-                chat_container.scroll_end(animate=False)
+                    # Scroll to bottom
+                    chat_container.scroll_end(animate=False)
+            except Exception as e:
+                self.log(f"Error setting up chat: {e}")
 
         except Exception as e:
-            print(f"Error loading sample data: {e}")
+            self.log(f"Error loading sample data: {e}")
 
     async def on_load(self):
         """Handle the application load event."""
@@ -117,9 +225,16 @@ class CalendarApp(App):
         """Compose the application layout."""
         yield Header()
 
-        # Main layout: chat on left, calendar on right
-        with Horizontal():
-            # Chat section (1/2 of width)
+        # Tab bar
+        with Horizontal(id="tabs"):
+            yield TabButton("Chat", "chat", active=True, id="chat-tab")
+            yield TabButton("Calendar", "calendar", active=False, id="calendar-tab")
+
+        # Tab content containers
+
+        # Chat tab content
+        with Vertical(id="chat-tab-content"):
+            # Chat section
             with Vertical(id="chat-section", classes="column"):
                 # Chat messages container
                 with Vertical(id="chat-container", classes="chat-container"):
@@ -129,13 +244,19 @@ class CalendarApp(App):
                 # Input area at bottom
                 yield Input(placeholder="Type your message here...", id="chat-input")
 
-            # Calendar section (1/2 of width)
-            with Vertical(id="calendar-section", classes="column"):
-                # Calendar display
-                yield CalendarDisplay(events=self.sample_events)
+        # Calendar tab content (hidden initially)
+        with Vertical(id="calendar-tab-content", classes="hidden"):
+            # Calendar layout (horizontal)
+            with Horizontal(id="calendar-layout"):
+                # Calendar view on the left (2/3 width)
+                with Vertical(id="calendar-view"):
+                    # Calendar display
+                    yield CalendarDisplay(events=self.sample_events)
 
-                # Today's events list
-                yield EventList(title="Today's Events")
+                # Today's events on the right (1/3 width)
+                with Vertical(id="today-events"):
+                    # Today's events list
+                    yield EventList(title="Today's Events")
 
         yield Footer()
 

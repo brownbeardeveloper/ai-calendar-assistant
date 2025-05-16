@@ -6,7 +6,6 @@ Handles data storage and CRUD operations for calendar events.
 import json
 import os
 import uuid
-from pathlib import Path
 from datetime import datetime
 
 
@@ -55,6 +54,7 @@ class CalendarModel:
             "end_time": end_time,
             "description": description,
             "created_at": datetime.now().isoformat(),
+            # "invitees": [], # add invite other people to the event
         }
 
         self.events.append(event)
