@@ -1,0 +1,35 @@
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignore virtual environment
+venv/
+.env/
+
+# Ignore environment configuration files
+*.env
+*.env.*
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore compiled files
+*.so
+*.dll
+*.dylib
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore YAML files for personas (if needed)
+*.yaml
+
+# Ignore other temporary or unnecessary files
+*.swp
+*.swo

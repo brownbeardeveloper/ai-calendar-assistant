@@ -1,0 +1,5 @@
+parsedatetime==2.6
+textual==0.44.1
+openai==1.13.3
+langchain-openai==0.0.5
+langchain==0.1.1
