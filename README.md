@@ -4,12 +4,23 @@ calendar_assistant/
 ├── config/                      # Configuration management
 │   └── constants.py             # Application-wide constants
 │
+├── models/                      # Data models (M in MVC)
+│   ├── calendar_model.py        # Calendar data storage and operations
+│   ├── chat_model.py            # Chat history data storage and operations
+│   └── settings_model.py        # Application settings storage
+│
+├── controllers/                 # Business logic (C in MVC)
+│   ├── calendar_controller.py   # Calendar operations controller
+│   ├── chat_controller.py       # Chat operations controller
+│   └── settings_controller.py   # Settings operations controller
+│
 ├── core/                        # Core AI logic
 │   ├── agent.py                 # AI agent creator
 │   ├── agent_tools.py           # Tools used by the AI agent
-│   └── supervisor.py            # Supervisor logic for overseeing agent behavior
+│   ├── supervisor.py            # Supervisor logic for agent behavior
+│   └── supervisor_controller.py # Controller for supervisor and CRUD agents
 │
-├── ui/                          # User interface components
+├── ui/                          # User interface components (V in MVC)
 │   ├── app.py                   # Main application class
 │   ├── screens/                 # High-level screen components
 │   │   ├── calendar.py          # Calendar screen
@@ -21,7 +32,7 @@ calendar_assistant/
 │       ├── message.py           # Chat message widget
 │       └── css.py               # Textual UI styling
 │
-├── utils/                       # Utility modules
-│   ├── helper_class.py          # Syncs agent tools with JSON storage (Google API-ready)
-│   ├── chat_helper_class.py     # Handles saving and querying chat without storing memory in GUI
-│   └── crud_json.py             # JSON-based CRUD operations
+├── prompts/                     # AI prompt templates
+│   └── agent_prompts.py         # Prompts for different agent types
+│
+└── utils/                       # Utility functions and helpers

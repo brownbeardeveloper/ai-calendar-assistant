@@ -52,15 +52,6 @@ class SettingsScreen(Screen):
                 pass
         pass
 
-    async def on_model_change(self, model):
-        """Handle AI model change."""
-        if hasattr(self.app, "settings_controller"):
-            result = self.app.settings_controller.set_model_name(model)
-            if result["success"]:
-                # Update AI model setting in UI
-                pass
-        pass
-
     async def on_reset_settings(self):
         """Handle settings reset."""
         if hasattr(self.app, "settings_controller"):

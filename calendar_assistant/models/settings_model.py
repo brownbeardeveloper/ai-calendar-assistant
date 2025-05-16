@@ -5,7 +5,7 @@ Handles storage and retrieval of application settings.
 
 import json
 import os
-from pathlib import Path
+from calendar_assistant.config.constants import UI_WIDTH, UI_HEIGHT, API_TIMEOUT
 
 
 class SettingsModel:
@@ -14,13 +14,16 @@ class SettingsModel:
     def __init__(self, settings_file=None):
         """Initialize the settings model with settings file path."""
         self.settings_file = settings_file or "data/settings.json"
-        self.settings = {
+        # Default settings - these will be overridden by stored settings if available
+        self.default_settings = {
             "theme": "dark",
-            "model_name": "gpt-4.1-nano",
-            "ui_width": 120,
-            "ui_height": 40,
-            "api_timeout": 30,
+            "ui_width": UI_WIDTH,
+            "ui_height": UI_HEIGHT,
+            "api_timeout": API_TIMEOUT,
         }
+        self.settings = self.default_settings.copy()
+        # Load stored settings
+        self.load_settings()
         pass
 
     def load_settings(self):
@@ -65,13 +68,7 @@ class SettingsModel:
 
     def reset_to_defaults(self):
         """Reset settings to default values."""
-        self.settings = {
-            "theme": "dark",
-            "model_name": "gpt-4.1-nano",
-            "ui_width": 120,
-            "ui_height": 40,
-            "api_timeout": 30,
-        }
+        self.settings = self.default_settings.copy()
         self.save_settings()
         return True
         pass

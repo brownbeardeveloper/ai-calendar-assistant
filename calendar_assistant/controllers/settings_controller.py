@@ -30,21 +30,6 @@ class SettingsController:
         return {"success": True, "theme": theme}
         pass
 
-    def get_model_name(self):
-        """Get the current AI model name setting."""
-        model_name = self.model.get_setting("model_name", "gpt-4.1-nano")
-        return {"success": True, "model_name": model_name}
-        pass
-
-    def set_model_name(self, model_name):
-        """Set the AI model name."""
-        if not model_name:
-            return {"success": False, "error": "Invalid model name"}
-
-        self.model.update_setting("model_name", model_name)
-        return {"success": True, "model_name": model_name}
-        pass
-
     def get_all_settings(self):
         """Get all application settings."""
         settings = self.model.settings
