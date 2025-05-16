@@ -3,7 +3,6 @@ CSS styles for the Calendar Assistant UI.
 """
 
 CSS = """
-/* Layout styles */
 #chat-section, #calendar-section {
     width: 1fr;
     height: 100%;
@@ -14,7 +13,6 @@ CSS = """
     height: 100%;
 }
 
-/* Chat container styles */
 #chat-container {
     height: 1fr;
     overflow-y: auto;
@@ -24,7 +22,6 @@ CSS = """
     border-right: solid $primary;
     border-left: solid $primary;
     border-bottom: none;
-    layout: vertical;
 }
 
 #chat-input {
@@ -33,7 +30,6 @@ CSS = """
     border: solid $primary;
 }
 
-/* Calendar styles */
 CalendarDisplay {
     height: 60%;
     border: solid $primary;
@@ -43,83 +39,79 @@ CalendarDisplay {
 EventList {
     height: 40%;
     border: solid $primary;
+    overflow: auto;
+    padding-bottom: 1;
+}
+
+ListView {
+    background: $surface;
+    color: $text;
+    overflow: auto;
+    height: 100%;
+    border: none;
+    padding: 1;
+    margin: 1;
+}
+
+ListItem {
+    padding: 1;
+    background: $panel;
+    color: $text;
+    margin-bottom: 1;
+    border: solid $primary-darken-1;
+}
+
+.event-item {
+    margin: 1 1 1 1;
+    padding: 0;
+    background: $surface;
+}
+
+#loading-message {
+    color: $warning;
+    background: $surface;
+    margin: 1;
+    padding: 1;
+    text-align: center;
+}
+
+.error {
+    color: $error;
+    background: $surface-darken-1;
+    margin: 1;
+    padding: 1;
+    text-align: center;
+    border: solid $error;
+}
+
+.spacer {
+    height: 1;
+}
+
+#debug-text {
+    background: $warning;
+    color: $text;
+    padding: 1;
+    margin: 1;
+    text-align: center;
+    height: auto;
+}
+
+.debug-text {
+    background: $warning;
+    color: $text;
 }
 
 /* Special styling for user/assistant messages */
 .user {
-    width: 80%;
     margin: 1;
-    align: right middle;
-    display: block;
+    width: 80%;
+    align-horizontal: right;
 }
 
 .assistant {
-    width: 80%;
     margin: 1;
-    align: left middle;
-    display: block;
-}
-
-/* Tab styles */
-#tabs {
-    dock: top;
-    height: 3;
-    padding: 0 1;
-    background: $surface;
-}
-
-.tab {
-    padding: 0 2;
-    height: 3;
-    border-bottom: solid $primary;
-}
-
-.tab-active {
-    border-bottom: solid $accent;
-    color: $accent;
-    text-style: bold;
-}
-
-.tab-inactive {
-    border-bottom: solid $primary-darken-1;
-    color: $text-muted;
-}
-
-/* Tab content styles */
-#calendar-tab-content, #chat-tab-content, #gui-tab-content {
-    height: 100%;
-}
-
-/* Calendar layout in calendar tab */
-#calendar-layout {
-    layout: horizontal;
-    height: 100%;
-}
-
-#calendar-view {
-    width: 2fr;
-    height: 100%;
-}
-
-#today-events {
-    width: 1fr;
-    height: 100%;
-}
-
-/* Hidden elements */
-.hidden {
-    display: none;
-}
-
-/* Chat content area */
-#chat-content {
-    height: 100%;
-    overflow-y: auto;
-}
-
-/* Make sure chat container fills available space */
-#chat-tab-content {
-    height: 100%;
-    overflow: hidden;
+    width: 80%;
+    align-horizontal: left;
 }
 """
