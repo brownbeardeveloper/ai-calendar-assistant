@@ -132,10 +132,12 @@ class CalendarController:
 
     def get_upcoming_events(self, limit=5):
         """Get upcoming events from now."""
-        now = datetime.now().isoformat()
+        # Create datetime object for today at 00:00:00
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_str = today.isoformat()
 
-        # Get all future events
-        future_events = self.model.query_events(start_date=now)
+        # Get all future events starting from today
+        future_events = self.model.query_events(start_date=today_str)
 
         # Sort by start time
         sorted_events = sorted(future_events, key=lambda e: e.get("start_time", ""))

@@ -75,13 +75,30 @@ class CalendarApp(App):
                 try:
                     with open(json_file_path, "r") as f:
                         calendar_data = json.load(f)
-                        # Sort events by start_time
-                        self.events = sorted(
+                        # Store all events
+                        self.all_events = sorted(
                             calendar_data, key=lambda e: e.get("start_time", "")
                         )
                         print(
-                            f"Loaded {len(self.events)} events from JSON file: {json_file_path}"
+                            f"Loaded {len(self.all_events)} events from JSON file: {json_file_path}"
                         )
+
+                        # For the UI, only load upcoming events if calendar controller exists
+                        if self.calendar_controller:
+                            result = self.calendar_controller.get_upcoming_events(
+                                limit=None
+                            )
+                            if result["success"]:
+                                self.events = result["events"]
+                                print(f"Filtered to {len(self.events)} upcoming events")
+                            else:
+                                self.events = self.all_events
+                                print(
+                                    "Failed to filter upcoming events, using all events"
+                                )
+                        else:
+                            self.events = self.all_events
+                            print("No calendar controller, using all events")
                 except json.JSONDecodeError as je:
                     print(f"JSON decode error: {je}")
                     raise

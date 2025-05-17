@@ -55,8 +55,7 @@ class EventList(VerticalScroll):
 
             # If no events, show a message
             if not self.events:
-                print("No events to display in EventList")
-                no_events = Static("NO EVENTS SCHEDULED", classes="bold red")
+                no_events = Static("NO EVENTS SCHEDULED", classes="no-events")
                 self.mount(no_events)
                 self.event_widgets.append(no_events)
                 return

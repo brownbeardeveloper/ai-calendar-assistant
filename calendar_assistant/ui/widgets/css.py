@@ -67,6 +67,14 @@ ListItem {
     background: $surface;
 }
 
+.no-events {
+    text-align: center;
+    text-style: bold;
+    color: $error;
+    margin: 2;
+    padding: 2;
+}
+
 #loading-message {
     color: $warning;
     background: $surface;
