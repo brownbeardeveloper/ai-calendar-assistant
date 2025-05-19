@@ -74,7 +74,7 @@ class CalendarModel:
             for e in self.events
             if e.start_time.year == date.year and e.start_time.month == date.month
         ]
-        return [event.model_dump(mode="json") for event in filtered_events]
+        return [event.model_dump() for event in filtered_events]
 
     async def get_today_events(self):
         """Return events scheduled for today."""
@@ -82,7 +82,7 @@ class CalendarModel:
             await self.load_events()
         today = datetime.now().date()
         filtered_events = [e for e in self.events if e.start_time.date() == today]
-        return [event.model_dump(mode="json") for event in filtered_events]
+        return [event.model_dump() for event in filtered_events]
 
     def update_event(self, event_id: str, **update_fields):
         """

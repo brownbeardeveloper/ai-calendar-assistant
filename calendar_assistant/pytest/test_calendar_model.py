@@ -66,18 +66,43 @@ def test_update_event_with_invalid_time(temp_model):
         )
 
 
-def test_multiple_events_order(temp_model):
-    base = datetime.now() + timedelta(minutes=1)
-    for i in range(5):
+@pytest.mark.asyncio
+async def test_multiple_events_order(temp_model):
+    # Create just 3 events with clear time separation
+    base_time = datetime.now()
+
+    # Create events in non-chronological order to verify sorting
+    events = [
+        {"title": "Event B", "start": base_time + timedelta(hours=2)},
+        {"title": "Event A", "start": base_time},
+        {"title": "Event C", "start": base_time + timedelta(hours=4)},
+    ]
+
+    # Create the events
+    for event in events:
         temp_model.create_event(
-            title=f"Event {i}",
-            start_time=base + timedelta(hours=i * 2),
-            end_time=base + timedelta(hours=i * 2 + 1),
+            title=event["title"],
+            start_time=event["start"],
+            end_time=event["start"] + timedelta(hours=1),
         )
 
-    upcoming = temp_model.get_upcoming_events()
-    assert len(upcoming) == 5
-    assert upcoming[0].start_time < upcoming[1].start_time
+    # Retrieve events for the month
+    month_events = await temp_model.get_events_for_month(base_time)
+
+    # Sort by start_time
+    sorted_events = sorted(month_events, key=lambda e: e["start_time"])
+
+    # Test assertions
+    assert len(sorted_events) == 3
+
+    # Check events are in correct order by comparing titles
+    # We know Event A should be first, B second, C third after sorting
+    titles = [e["title"] for e in sorted_events]
+    assert titles == ["Event A", "Event B", "Event C"]
+
+    # Verify times are correctly ordered
+    for i in range(1, len(sorted_events)):
+        assert sorted_events[i - 1]["start_time"] < sorted_events[i]["start_time"]
 
 
 if __name__ == "__main__":

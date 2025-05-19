@@ -110,16 +110,20 @@ ListItem {
     color: $text;
 }
 
-/* Special styling for user/assistant messages */
+/* Message styling */
+.message {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 1;
+    margin-bottom: 1;
+}
+
 .user {
-    margin: 1;
-    width: 80%;
     align-horizontal: right;
 }
 
 .assistant {
-    margin: 1;
-    width: 80%;
     align-horizontal: left;
 }
 """

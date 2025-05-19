@@ -1,9 +1,10 @@
 # app.py
 
 import traceback
+import asyncio
 from textual.app import App
 from textual.containers import Horizontal, Vertical
-from textual.widgets import Header, Footer, Input
+from textual.widgets import Header, Footer, Input, Static
 from textual.binding import Binding
 from datetime import datetime
 from typing import List, Dict, Any
@@ -45,13 +46,13 @@ class CalendarApp(App):
             all_month_events = await self.controller.get_events_for_month(current_time)
             self.events = all_month_events  # For CalendarDisplay
 
-            # Filter for today's and future events for the EventList
             today_date = current_time.date()
-            upcoming_events = [
-                event
-                for event in all_month_events
-                if datetime.fromisoformat(event["start_time"]).date() >= today_date
-            ]
+            upcoming_events = []
+            for event in all_month_events:
+                start_time_obj = event.get("start_time")
+                if isinstance(start_time_obj, datetime):
+                    if start_time_obj.date() >= today_date:
+                        upcoming_events.append(event)
 
             self._update_ui_with_events(upcoming_events_for_list=upcoming_events)
 
@@ -72,7 +73,6 @@ class CalendarApp(App):
 
             event_list = self.query_one(EventList)
             if event_list:
-                event_list.border_title = "Today & Upcoming Events"
                 event_list.update_events(upcoming_events_for_list)
 
         except Exception as e:
@@ -84,38 +84,66 @@ class CalendarApp(App):
         yield Header()
         with Horizontal():
             with Vertical(id="chat-section", classes="column"):
+                # Create chat container with vertical layout to ensure messages stack properly
                 with Vertical(id="chat-container", classes="chat-container"):
+                    # Start with an empty chat container that will be filled with messages
                     pass
                 yield Input(placeholder="Type your message here...", id="chat-input")
 
             with Vertical(id="calendar-section", classes="column"):
                 yield CalendarDisplay(events=self.events)
-                yield EventList(title="Upcoming Events")
+                yield EventList()
         yield Footer()
 
     async def action_quit(self):
         self.exit()
 
-    async def on_input_submitted(self, event):
-        """Handle chat input."""
+    def on_input_submitted(self, event):
+        """Handle chat input synchronously to ensure immediate UI update."""
         user_input = event.value.strip()
         if not user_input:
             return
 
-        event.input.value = ""  # clear input
+        # Clear input field immediately
+        event.input.value = ""
+
+        # Add user message to chat - this happens synchronously
         chat_container = self.query_one("#chat-container")
-        user_msg = MessageWidget("User", user_input, is_user=True)
+        user_msg = MessageWidget("User", user_input)
         chat_container.mount(user_msg)
         chat_container.scroll_end(animate=False)
 
-        try:
-            assistant_text = await self.controller.process_chat(user_input)
-        except Exception as e:
-            assistant_text = f"Error: {e}"
-            traceback.print_exc()
-
-        assistant_msg = MessageWidget("Assistant", assistant_text)
-        chat_container.mount(assistant_msg)
-        chat_container.scroll_end(animate=False)
-
+        # Focus on input immediately
         self.query_one("#chat-input").focus()
+
+        # Store the user input for async processing
+        self._last_user_input = user_input
+
+        # Schedule AI processing after this refresh cycle completes
+        self.call_after_refresh(self._schedule_ai_processing)
+
+    def _schedule_ai_processing(self):
+        """Schedule AI processing as a separate task after UI refresh."""
+        # Create a separate background task for AI processing
+        asyncio.create_task(self._process_ai_response(self._last_user_input))
+
+    async def _process_ai_response(self, user_input: str):
+        """Process AI response in a separate task."""
+        chat_container = self.query_one("#chat-container")
+
+        try:
+            # Get AI response (this might take some time)
+            assistant_text = await self.controller.process_chat(user_input)
+
+            # Add assistant message
+            assistant_msg = MessageWidget("Assistant", assistant_text)
+            chat_container.mount(assistant_msg)
+            chat_container.scroll_end(animate=False)
+        except Exception as e:
+            traceback.print_exc()
+            # Show error message in chat
+            error_msg = MessageWidget(
+                "Assistant", f"Sorry, I encountered an error: {str(e)}"
+            )
+            chat_container.mount(error_msg)
+            chat_container.scroll_end(animate=False)

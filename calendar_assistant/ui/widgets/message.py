@@ -11,32 +11,32 @@ from rich.text import Text
 class MessageWidget(Static):
     """Widget for displaying a chat message."""
 
-    def __init__(self, sender, content, timestamp=None, is_user=False):
+    def __init__(self, sender, content, timestamp=None):
         """Initialize the message widget."""
         super().__init__()
         self.sender = sender
         self.content = content
         self.timestamp = timestamp or datetime.now().isoformat()
-        self.is_user = is_user
-        self.add_class("user" if is_user else "assistant")
+        self.is_user = sender == "User"
+        # First add the common message class
+        self.add_class("message")
+        # Then add the user/assistant specific class
+        self.add_class("user" if self.is_user else "assistant")
 
     def render(self):
         """Render the message widget."""
-        # Format the message content
-        sender_text = Text(f"{self.sender}: ", style="bold")
         content_text = Text(self.content)
-        time_text = Text(f"\n{self.format_timestamp()}", style="italic dim")
+        timestamp_str = self.format_timestamp()
 
-        combined_text = Text.assemble(sender_text, content_text, time_text)
-
-        # Create a panel with the message content
+        # Create a panel that's narrower than the full container
         panel = Panel(
-            combined_text,
+            content_text,
             border_style="green" if self.is_user else "blue",
-            title=self.sender,
-            title_align="left",
+            subtitle=timestamp_str,
+            subtitle_align="right" if self.is_user else "left",
             padding=(0, 1),
             highlight=True,
+            width=60,  # Set a fixed width for the panel
         )
 
         return panel
@@ -45,6 +45,6 @@ class MessageWidget(Static):
         """Format the message timestamp for display."""
         try:
             dt = datetime.fromisoformat(self.timestamp)
-            return dt.strftime("%H:%M:%S")
+            return dt.strftime("%H:%M")
         except (ValueError, TypeError):
             return self.timestamp or ""

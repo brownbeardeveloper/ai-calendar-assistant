@@ -90,17 +90,17 @@ class CalendarDisplay(Static):
 
     def _get_events_for_day(self, year, month, day):
         """Get events for a specific day."""
-        day_start = datetime(year, month, day).isoformat()
-        day_end = (
-            datetime(year, month, day) + timedelta(days=1) - timedelta(microseconds=1)
-        ).isoformat()
+        day_start_dt = datetime(year, month, day, 0, 0, 0)
+        day_end_exclusive_dt = datetime(year, month, day) + timedelta(days=1)
 
-        return [
-            e
-            for e in self.events
-            if e.get("start_time", "") >= day_start
-            and e.get("start_time", "") <= day_end
-        ]
+        events_for_day = []
+        for e in self.events:
+            event_start_time = e.get("start_time")
+
+            if isinstance(event_start_time, datetime):
+                if day_start_dt <= event_start_time < day_end_exclusive_dt:
+                    events_for_day.append(e)
+        return events_for_day
 
     def set_view(self, view_type):
         """Set the calendar view type."""

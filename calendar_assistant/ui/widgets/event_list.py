@@ -8,6 +8,7 @@ from textual.containers import VerticalScroll
 from rich.panel import Panel
 from rich.text import Text
 from datetime import datetime
+from typing import Optional
 
 
 class EventList(VerticalScroll):
@@ -90,24 +91,23 @@ class EventList(VerticalScroll):
     def _create_event_widget(self, event, index):
         """Create a static widget for an event."""
         title = event.get("title", "Untitled Event")
-        raw_start_time_str = event.get("start_time", "")
 
-        # Use the already formatted start_time for display
-        display_start_time = self._format_time(raw_start_time_str)
-        display_end_time = self._format_time(event.get("end_time", ""))
+        # event times are now expected to be datetime objects or None
+        event_start_dt = event.get("start_time")
+        event_end_dt = event.get("end_time")
+
+        display_start_time = self._format_time(event_start_dt)
+        display_end_time = self._format_time(event_end_dt)
         description = event.get("description", "")
 
         # Determine panel border style and time text style
         panel_border_style = "blue"  # Default
         time_text_style = "bold blue"  # Default
-        try:
-            event_start_dt = datetime.fromisoformat(raw_start_time_str)
+
+        if event_start_dt:  # Check if event_start_dt is not None
             if event_start_dt.date() == datetime.now().date():
                 panel_border_style = "green"  # Today's event
                 time_text_style = "bold green"  # Today's event
-        except ValueError:
-            # If raw_start_time_str is not a valid ISO format, keep default styles
-            print(f"Could not parse start_time for style check: {raw_start_time_str}")
 
         # Format the event text
         event_text = Text()
@@ -125,11 +125,8 @@ class EventList(VerticalScroll):
         widget_id = f"event-{event.get('id', index)}"
         return Static(panel, id=widget_id, classes="event-item")
 
-    def _format_time(self, time_str):
-        """Format a time string for display."""
-        try:
-            dt = datetime.fromisoformat(time_str)
-            return dt.strftime("%Y-%m-%d %H:%M")
-        except (ValueError, TypeError):
-            print(f"Error formatting time: {time_str}")
-            return time_str or ""
+    def _format_time(self, time_obj: Optional[datetime]):
+        """Format a datetime object for display, or return a placeholder string."""
+        if isinstance(time_obj, datetime):
+            return time_obj.strftime("%Y-%m-%d %H:%M")
+        return "N/A"  # Return placeholder if time_obj is None or not a datetime
