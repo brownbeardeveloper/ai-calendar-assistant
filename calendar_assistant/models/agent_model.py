@@ -5,8 +5,6 @@ AI agent creator.
 from calendar_assistant.prompts.agent_prompts import get_prompt
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage, SystemMessage
-from dotenv import load_dotenv
-import os
 
 
 class Agent:
@@ -25,16 +23,3 @@ class Agent:
             HumanMessage(content=query),
         ]
         return self.model.invoke(messages)
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    api_key = os.environ.get("OPENAI_API_KEY")
-
-    if not api_key:
-        raise ValueError("Missing OpenAI API key in the .env file.")
-
-    model = ChatOpenAI(api_key=api_key, model="gpt-4.1-nano")
-    agent = Agent(model=model, agent_type="crud")
-    response = agent.run("Create a meeting tomorrow at 10am with Ben")
-    print(f"Response: {response.content}")

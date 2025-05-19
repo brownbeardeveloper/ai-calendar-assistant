@@ -1,54 +1,33 @@
+from datetime import datetime
+from typing import List, Dict, Any
+
 from calendar_assistant.models.calendar_model import CalendarModel
-from calendar_assistant.models.chat_model import ChatModel
-from calendar_assistant.models.settings_model import SettingsModel
 
 
 class AppController:
     def __init__(self):
         self.calendar = CalendarModel()
-        self.chat = ChatModel()
-        self.settings = SettingsModel()
 
-    # Chat
+    # Calendar functions
+    async def get_events_for_month(self, date: datetime) -> List[Dict[str, Any]]:
+        return await self.calendar.get_events_for_month(date)
+
+    async def get_today_events(self) -> List[Dict[str, Any]]:
+        return await self.calendar.get_today_events()
+
     async def process_chat(self, user_input: str) -> str:
-        """Process a user query through the agent and log the conversation."""
-        if not user_input.strip():
-            return "Empty input received."
-
-        self.chat.add(user_input)
-        response = self.chat.process(user_input)
-        self.chat.add(response)
-        return response
-
-    # Calendar
-    def get_upcoming_events(self, limit=5):
-        return self.calendar.get_upcoming_events(limit)
-
-    def get_today_events(self):
-        return self.calendar.get_today_events()
-
-    def create_event(self, title, start_time, end_time, description=None):
-        return self.calendar.create_event(title, start_time, end_time, description)
-
-    def update_event(
-        self, event_id, title=None, start_time=None, end_time=None, description=None
-    ):
-        return self.calendar.update_event(
-            event_id, title, start_time, end_time, description
-        )
-
-    def delete_event(self, event_id):
-        return self.calendar.delete_event(event_id)
-
-    # Settings
-    def get_settings(self):
-        return self.settings.get_settings()
-
-    def toggle_theme(self):
-        current = self.settings.get("theme", "dark")
-        new_theme = "light" if current == "dark" else "dark"
-        self.settings.set("theme", new_theme)
-        return new_theme
-
-    def get_theme(self):
-        return self.settings.get("theme", "dark")
+        """Processes user input from the chat interface."""
+        # Placeholder implementation
+        # In a real application, this would interact with an AI agent/NLP service
+        # and potentially call other controller methods to manage calendar events.
+        print(f"Received chat input: {user_input}")
+        # Example: interact with calendar model based on input
+        # if "create event" in user_input.lower():
+        #     # Parse details and call self.calendar.create_event(...)
+        #     return "Event created (mock)"
+        # elif "list events" in user_input.lower():
+        #     today_events = await self.get_today_events()
+        #     if today_events:
+        #         return f"Today's events: {', '.join([e['title'] for e in today_events])}"
+        #     return "No events today."
+        return f"Echo: {user_input}"  # Simple echo for now

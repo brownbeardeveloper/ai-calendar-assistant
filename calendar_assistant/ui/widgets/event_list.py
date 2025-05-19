@@ -13,7 +13,7 @@ from datetime import datetime
 class EventList(VerticalScroll):
     """Widget for displaying calendar events using direct Static widgets."""
 
-    def __init__(self, title="Upcoming Events"):
+    def __init__(self, title="Today & Upcoming Events"):
         """Initialize the event list widget."""
         super().__init__()
         self.title = title
@@ -44,7 +44,6 @@ class EventList(VerticalScroll):
                     widget.remove()
             self.event_widgets = []
 
-            # Try to remove loading message
             try:
                 loading = self.query_one("#loading-message")
                 if loading:
@@ -91,19 +90,36 @@ class EventList(VerticalScroll):
     def _create_event_widget(self, event, index):
         """Create a static widget for an event."""
         title = event.get("title", "Untitled Event")
-        start_time = self._format_time(event.get("start_time", ""))
-        end_time = self._format_time(event.get("end_time", ""))
+        raw_start_time_str = event.get("start_time", "")
+
+        # Use the already formatted start_time for display
+        display_start_time = self._format_time(raw_start_time_str)
+        display_end_time = self._format_time(event.get("end_time", ""))
         description = event.get("description", "")
+
+        # Determine panel border style and time text style
+        panel_border_style = "blue"  # Default
+        time_text_style = "bold blue"  # Default
+        try:
+            event_start_dt = datetime.fromisoformat(raw_start_time_str)
+            if event_start_dt.date() == datetime.now().date():
+                panel_border_style = "green"  # Today's event
+                time_text_style = "bold green"  # Today's event
+        except ValueError:
+            # If raw_start_time_str is not a valid ISO format, keep default styles
+            print(f"Could not parse start_time for style check: {raw_start_time_str}")
 
         # Format the event text
         event_text = Text()
-        event_text.append(f"{start_time} - {end_time}", style="bold blue")
+        event_text.append(
+            f"{display_start_time} - {display_end_time}", style=time_text_style
+        )
         event_text.append(f"\n{title}", style="bold")
         if description:
             event_text.append(f"\n{description}", style="italic")
 
         # Create a panel for better visibility
-        panel = Panel(event_text, border_style="blue")
+        panel = Panel(event_text, border_style=panel_border_style)
 
         # Create widget with unique ID
         widget_id = f"event-{event.get('id', index)}"

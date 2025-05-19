@@ -8,7 +8,7 @@ import sys
 import os
 from dotenv import load_dotenv
 from calendar_assistant.ui.app import CalendarApp
-from calendar_assistant.controllers.app_controller import AppController
+from calendar_assistant.controller.app_controller import AppController
 
 
 def main():

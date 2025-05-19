@@ -1,11 +1,12 @@
-# calendar_ui.py
+# app.py
 
-import asyncio
 import traceback
 from textual.app import App
 from textual.containers import Horizontal, Vertical
 from textual.widgets import Header, Footer, Input
 from textual.binding import Binding
+from datetime import datetime
+from typing import List, Dict, Any
 
 from calendar_assistant.ui.widgets.message import MessageWidget
 from calendar_assistant.ui.widgets.event_list import EventList
@@ -17,12 +18,8 @@ class CalendarApp(App):
     """Main application class for the Calendar Assistant UI."""
 
     CSS = CSS
-
     BINDINGS = [
-        Binding("d", "toggle_dark", "Toggle Dark Mode"),
         Binding("q", "quit", "Quit"),
-        Binding("1", "chat_tab", "Chat Tab"),
-        Binding("2", "calendar_tab", "Calendar Tab"),
     ]
 
     def __init__(self, controller):
@@ -32,7 +29,6 @@ class CalendarApp(App):
 
     async def on_mount(self):
         """Initialize UI and apply theme."""
-        self.dark = self.controller.get_theme() == "dark"
         try:
             self.query_one("#chat-input").focus()
         except Exception as e:
@@ -45,13 +41,20 @@ class CalendarApp(App):
     async def load_events(self):
         """Load upcoming events and update UI."""
         try:
-            result = self.controller.get_upcoming_events(limit=None)
-            if result["success"]:
-                self.events = result["events"]
-            else:
-                self.events = []
+            current_time = datetime.now()
+            all_month_events = await self.controller.get_events_for_month(current_time)
+            self.events = all_month_events  # For CalendarDisplay
 
-            self._update_ui_with_events()
+            # Filter for today's and future events for the EventList
+            today_date = current_time.date()
+            upcoming_events = [
+                event
+                for event in all_month_events
+                if datetime.fromisoformat(event["start_time"]).date() >= today_date
+            ]
+
+            self._update_ui_with_events(upcoming_events_for_list=upcoming_events)
+
             # Initialize chat area
             chat_container = self.query_one("#chat-container")
             chat_container.scroll_end(animate=False)
@@ -61,7 +64,7 @@ class CalendarApp(App):
             traceback.print_exc()
             self.events = []
 
-    def _update_ui_with_events(self):
+    def _update_ui_with_events(self, upcoming_events_for_list: List[Dict[str, Any]]):
         try:
             calendar_display = self.query_one(CalendarDisplay)
             if calendar_display:
@@ -69,8 +72,8 @@ class CalendarApp(App):
 
             event_list = self.query_one(EventList)
             if event_list:
-                event_list.border_title = "Upcoming Events"
-                event_list.update_events(self.events)
+                event_list.border_title = "Today & Upcoming Events"
+                event_list.update_events(upcoming_events_for_list)
 
         except Exception as e:
             print(f"Error updating UI with events: {e}")
@@ -90,18 +93,8 @@ class CalendarApp(App):
                 yield EventList(title="Upcoming Events")
         yield Footer()
 
-    async def action_toggle_dark(self):
-        new_theme = self.controller.toggle_theme()
-        self.dark = new_theme == "dark"
-
     async def action_quit(self):
         self.exit()
-
-    async def action_chat_tab(self):
-        self.query_one("#chat-input").focus()
-
-    async def action_calendar_tab(self):
-        self.query_one("#calendar-section").focus()
 
     async def on_input_submitted(self, event):
         """Handle chat input."""
@@ -110,7 +103,6 @@ class CalendarApp(App):
             return
 
         event.input.value = ""  # clear input
-
         chat_container = self.query_one("#chat-container")
         user_msg = MessageWidget("User", user_input, is_user=True)
         chat_container.mount(user_msg)

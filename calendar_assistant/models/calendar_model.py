@@ -65,13 +65,24 @@ class CalendarModel:
         self.save_events()
         return event
 
-    def get_upcoming_events(self):
-        now = datetime.now()
-        return [e for e in self.events if e.start_time > now]
+    async def get_events_for_month(self, date: datetime):
+        """Return events scheduled in the same year and month as the given date."""
+        if not self.events and os.path.exists(self.storage_file):
+            await self.load_events()
+        filtered_events = [
+            e
+            for e in self.events
+            if e.start_time.year == date.year and e.start_time.month == date.month
+        ]
+        return [event.model_dump(mode="json") for event in filtered_events]
 
-    def get_today_events(self):
+    async def get_today_events(self):
+        """Return events scheduled for today."""
+        if not self.events and os.path.exists(self.storage_file):
+            await self.load_events()
         today = datetime.now().date()
-        return [e for e in self.events if e.start_time.date() == today]
+        filtered_events = [e for e in self.events if e.start_time.date() == today]
+        return [event.model_dump(mode="json") for event in filtered_events]
 
     def update_event(self, event_id: str, **update_fields):
         """
