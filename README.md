@@ -1,38 +1,79 @@
-calendar_assistant/
+# AI Calendar Assistant
+
+A terminal-based calendar assistant powered by AI that helps you manage your schedule through natural language.
+
+## Project Structure
+
+```markdown
+ai_calendar/
 ├── main.py                      # Entry point of the application
 │
-├── config/                      # Configuration management
-│   └── constants.py             # Application-wide constants
+├── calendar_assistant/          # Main package
+│   ├── config/                  # Configuration management
+│   │   └── constants.py         # Application-wide constants
+│   │
+│   ├── controller/              # Business logic (C in MVC)
+│   │   └── app_controller.py    # Main application controller
+│   │
+│   ├── models/                  # Data models (M in MVC)
+│   │   ├── agent.py             # AI agent definition
+│   │   ├── agent_tools.py       # Tools used by the AI agent
+│   │   ├── calendar_model.py    # Calendar data storage and operations
+│   │   ├── chat_model.py        # Chat history data storage and operations
+│   │   └── settings_model.py    # Application settings storage
+│   │
+│   ├── prompts/                 # AI prompt templates
+│   │   └── agent_prompts.py     # Prompts for different agent types
+│   │
+│   └── ui/                      # User interface components (V in MVC)
+│       ├── app.py               # Main application UI class
+│       └── widgets/             # Reusable UI components
+│           ├── calendar_display.py # Calendar display widget
+│           ├── event_list.py    # Event list widget
+│           ├── message.py       # Chat message widget
+│           └── css.py           # Textual UI styling
 │
-├── models/                      # Data models (M in MVC)
-│   ├── calendar_model.py        # Calendar data storage and operations
-│   ├── chat_model.py            # Chat history data storage and operations
-│   └── settings_model.py        # Application settings storage
+├── data/                        # Data storage
+│   ├── events.json              # Calendar events storage
+│   ├── settings.json            # Application settings storage
+│   └── settings_default         # Default settings storage
 │
-├── controllers/                 # Business logic (C in MVC)
-│   ├── calendar_controller.py   # Calendar operations controller
-│   ├── chat_controller.py       # Chat operations controller
-│   └── settings_controller.py   # Settings operations controller
+├── requirements.txt             # Project dependencies
 │
-├── core/                        # Core AI logic
-│   ├── agent.py                 # AI agent creator
-│   ├── agent_tools.py           # Tools used by the AI agent
-│   ├── supervisor.py            # Supervisor logic for agent behavior
-│   └── supervisor_controller.py # Controller for supervisor and CRUD agents
-│
-├── ui/                          # User interface components (V in MVC)
-│   ├── app.py                   # Main application class
-│   ├── screens/                 # High-level screen components
-│   │   ├── calendar.py          # Calendar screen
-│   │   ├── chat.py              # Chat screen
-│   │   └── settings.py          # Settings screen
-│   └── widgets/                 # Reusable UI widgets
-│       ├── calendar_display.py  # Calendar display widget
-│       ├── event_list.py        # Event list widget
-│       ├── message.py           # Chat message widget
-│       └── css.py               # Textual UI styling
-│
-├── prompts/                     # AI prompt templates
-│   └── agent_prompts.py         # Prompts for different agent types
-│
-└── utils/                       # Utility functions and helpers
+└── tests/                       # Test suite (to be implemented)
+    ├── test_calendar_model.py   # Tests for calendar functionality
+
+```
+
+## Features
+
+- Natural language interface for managing calendar events
+- Terminal-based UI using Textual
+- AI-powered understanding of date/time expressions
+- Event creation, modification, and deletion
+
+## Installation
+
+1. Clone the repository
+2. Install dependencies: `pip install -r requirements.txt`
+3. Set your OpenAI API key: `export OPENAI_API_KEY=your_key_here`
+4. Run the application: `python main.py`
+
+## Usage
+
+Use natural language to interact with your calendar:
+- "Create a meeting with John tomorrow at 2pm"
+- "Show me my schedule for next week"
+- "Cancel my 3pm appointment"
+
+## Requirements
+
+- Python 3.8+
+- OpenAI API key
+
+## Testing
+
+To run the tests, use the following command:
+```
+pytest calendar_assistant/pytest/
+```

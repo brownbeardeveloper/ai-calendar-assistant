@@ -5,23 +5,27 @@ Entry point of the Calendar Assistant application.
 
 import traceback
 import sys
+import os
+from dotenv import load_dotenv
 from calendar_assistant.ui.app import CalendarApp
-from calendar_assistant.controllers.calendar_controller import CalendarController
-from calendar_assistant.core.supervisor_controller import SupervisorController
+from calendar_assistant.controllers.app_controller import AppController
 
 
 def main():
     """Main entry point of the application."""
     try:
-        # Initialize controllers
-        calendar_controller = CalendarController()
-        supervisor_controller = SupervisorController()
+        # Load environment variables from .env file
+        load_dotenv()
 
-        # Initialize and run the UI app with controllers
-        app = CalendarApp(
-            calendar_controller=calendar_controller, supervisor=supervisor_controller
+        # Print for debugging - can be removed once working
+        print(
+            f"Using OpenAI API key: {os.environ.get('OPENAI_API_KEY', 'Not set')[:5]}..."
         )
+
+        controller = AppController()
+        app = CalendarApp(controller=controller)
         app.run()
+
     except Exception as e:
         print(f"Error starting application: {e}")
         traceback.print_exc()

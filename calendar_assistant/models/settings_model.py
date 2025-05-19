@@ -26,6 +26,7 @@ class SettingsModel:
             else:
                 print(f"Settings file not found: {self.settings_file}")
             return self.settings
+
         except Exception as e:
             print(f"Error loading settings: {e}")
             return self.settings
@@ -42,9 +43,9 @@ class SettingsModel:
             print(f"Error saving settings: {e}")
             return False
 
-    def get_setting(self, key, default=None):
-        """Get a specific setting value."""
-        return self.settings.get(key, default)
+    def get_settings(self):
+        """Get all settings."""
+        return self.settings
 
     def update_setting(self, key, value):
         """Update a specific setting value."""
@@ -64,6 +65,7 @@ class SettingsModel:
             else:
                 print(f"Default settings file not found: {self.default_settings_file}")
             return True
+
         except Exception as e:
             print(f"Error resetting settings to defaults: {e}")
             return False
