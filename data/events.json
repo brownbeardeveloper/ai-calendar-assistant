@@ -5,6 +5,7 @@
     "start_time": "2025-05-16T09:00:00",
     "end_time": "2025-05-16T09:30:00",
     "description": "Daily team standup meeting",
+    "location": null,
     "created_at": "2025-05-15T16:00:00",
     "updated_at": null
   },
@@ -14,6 +15,7 @@
     "start_time": "2025-05-20T11:00:00",
     "end_time": "2025-05-20T12:00:00",
     "description": "Quarterly project planning session",
+    "location": null,
     "created_at": "2025-05-14T14:30:00",
     "updated_at": null
   },
@@ -23,6 +25,7 @@
     "start_time": "2025-05-29T13:00:00",
     "end_time": "2025-05-29T14:00:00",
     "description": "Lunch meeting at Cafe Nero",
+    "location": null,
     "created_at": "2025-05-15T09:15:00",
     "updated_at": null
   },
@@ -32,6 +35,7 @@
     "start_time": "2025-05-22T15:30:00",
     "end_time": "2025-05-22T16:30:00",
     "description": "Product demo for new client",
+    "location": null,
     "created_at": "2025-05-13T11:20:00",
     "updated_at": null
   },
@@ -41,6 +45,7 @@
     "start_time": "2025-05-20T17:00:00",
     "end_time": "2025-05-20T17:30:00",
     "description": "Review of this week's progress",
+    "location": null,
     "created_at": "2025-05-15T13:45:00",
     "updated_at": null
   },
@@ -50,7 +55,18 @@
     "start_time": "2023-07-16T13:00:00",
     "end_time": "2023-07-16T14:00:00",
     "description": "",
+    "location": null,
     "created_at": "2025-05-23T10:08:47.858028",
+    "updated_at": null
+  },
+  {
+    "id": "0209fc02-bd37-4b55-a169-4d70a24a9c6d",
+    "title": "Meeting with Julia",
+    "start_time": "2023-07-15T15:00:00",
+    "end_time": "2023-07-15T16:00:00",
+    "description": "",
+    "location": "home",
+    "created_at": "2025-05-23T10:56:36.578738",
     "updated_at": null
   }
 ]

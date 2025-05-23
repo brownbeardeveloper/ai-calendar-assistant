@@ -12,6 +12,7 @@ class CalendarEvent(BaseModel):
     start_time: datetime
     end_time: datetime
     description: Optional[str] = None
+    location: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: Optional[datetime] = None
 
@@ -54,12 +55,14 @@ class CalendarModel:
         start_time: datetime,
         end_time: datetime,
         description: Optional[str] = None,
+        location: Optional[str] = None,
     ):
         event = CalendarEvent(
             title=title,
             start_time=start_time,
             end_time=end_time,
             description=description,
+            location=location,
         )
         self.events.append(event)
         self.save_events()
@@ -97,34 +100,11 @@ class CalendarModel:
 
             print(f"Found {len(filtered_events)} events for {today}")
 
-            # For testing purposes, if no events found on the exact date,
-            # return a hardcoded event
-            if not filtered_events:
-                # Create a dummy event for testing
-                print("No events found - returning sample event")
-                sample_event = {
-                    "id": "sample-event",
-                    "title": "Sample Meeting",
-                    "start_time": "2025-05-22T10:00:00",
-                    "end_time": "2025-05-22T11:00:00",
-                    "description": "This is a sample event for testing",
-                }
-                return [sample_event]
-
-            # Convert events to dictionary format
+            # Convert events to dictionary format and return
             return [event.model_dump() for event in filtered_events]
         except Exception as e:
             print(f"Error in get_today_events: {e}")
-            # Return a simple hardcoded event as fallback
-            return [
-                {
-                    "id": "error-fallback",
-                    "title": "Test Event",
-                    "start_time": "2025-05-22T09:00:00",
-                    "end_time": "2025-05-22T10:00:00",
-                    "description": "Fallback test event",
-                }
-            ]
+            return []
 
     def update_event(self, event_id: str, **update_fields):
         """

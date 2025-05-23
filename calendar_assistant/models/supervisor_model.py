@@ -1,6 +1,4 @@
-from datetime import datetime
-from typing import List, Dict, Any, Optional
-import os
+from datetime import datetime, timedelta
 from langchain_openai import ChatOpenAI
 from langchain_core.tools import tool
 from langchain.agents import AgentExecutor
@@ -31,7 +29,7 @@ class SupervisorModel:
         async def create_event(
             title: str,
             start_time: str,
-            end_time: str,
+            end_time: str = "",
             description: str = "",
             location: str = "",
             attendees: str = "",
@@ -40,37 +38,38 @@ class SupervisorModel:
             Create a new calendar event.
 
             Args:
-                title: The title of the event
-                start_time: The start time in ISO format (YYYY-MM-DDTHH:MM:SS)
-                end_time: The end time in ISO format (YYYY-MM-DDTHH:MM:SS)
-                description: Optional description of the event
-                location: Optional location where the event takes place
-                attendees: Optional list of people attending the event
+                title: The title of the event (required)
+                start_time: The start time in ISO format YYYY-MM-DDTHH:MM:SS (required)
+                end_time: The end time in ISO format YYYY-MM-DDTHH:MM:SS (optional, defaults to 1 hour after start time)
+                description: Description of the event (optional)
+                location: Where the event takes place (optional)
+                attendees: People attending the event, comma separated (optional)
             """
             try:
-                # Parse datetime strings
-                start = datetime.fromisoformat(start_time)
-                end = datetime.fromisoformat(end_time)
+                # Parse start time
+                start_datetime = datetime.fromisoformat(start_time)
 
-                # Prepare description with additional fields
-                full_description = description or ""
+                # If end_time not provided, set it to 1 hour after start time
+                if not end_time:
+                    end_datetime = start_datetime + timedelta(hours=1)
+                else:
+                    end_datetime = datetime.fromisoformat(end_time)
 
-                if location:
-                    full_description += f"\nLocation: {location}"
-
+                # Only add attendees to description
                 if attendees:
-                    full_description += f"\nAttendees: {attendees}"
+                    description += f"\nAttendees: {attendees}"
 
-                # Create the event
+                # Create the event with location as a separate field
                 event = calendar_model.create_event(
                     title=title,
-                    start_time=start,
-                    end_time=end,
-                    description=full_description.strip(),
+                    start_time=start_datetime,
+                    end_time=end_datetime,
+                    description=description.strip(),
+                    location=location,
                 )
 
                 # Return success message
-                return f"Successfully created event: '{event.title}' from {event.start_time.strftime('%Y-%m-%d %H:%M')} to {event.end_time.strftime('%H:%M')}"
+                return f"Successfully created event: '{event.title}' from {event.start_time.strftime('%Y-%m-%d %H:%M')} to {event.end_time.strftime('%H:%M')}{' at ' + location if location else ''}"
 
             except ValueError as e:
                 return f"Error creating event: {str(e)}"
@@ -92,13 +91,16 @@ class SupervisorModel:
                     if isinstance(event, dict):
                         title = event.get("title", "Untitled")
                         start = event.get("start_time")
+                        location = event.get("location", "")
+
                         if isinstance(start, str):
                             start_time = datetime.fromisoformat(start)
                             formatted_time = start_time.strftime("%H:%M")
                         else:
                             formatted_time = "Unknown time"
 
-                        result += f"- {title} at {formatted_time}\n"
+                        location_info = f" at {location}" if location else ""
+                        result += f"- {title} at {formatted_time}{location_info}\n"
 
                 return result.strip()
             except Exception as e:
