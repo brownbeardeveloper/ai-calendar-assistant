@@ -16,14 +16,19 @@ ai_calendar/
 │   │   └── app_controller.py    # Main application controller
 │   │
 │   ├── models/                  # Data models (M in MVC)
-│   │   ├── agent.py             # AI agent definition
-│   │   ├── agent_tools.py       # Tools used by the AI agent
-│   │   ├── calendar_model.py    # Calendar data storage and operations
-│   │   ├── chat_model.py        # Chat history data storage and operations
-│   │   └── settings_model.py    # Application settings storage
+│   │   ├── agent_model.py       # AI agent definition
+│   │   └── calendar_model.py    # Calendar data storage and operations
+│   │
+│   ├── tools/                   # Tools used by the AI agent
+│   │   └── agent_tools.py       # Implementation of agent tools
 │   │
 │   ├── prompts/                 # AI prompt templates
 │   │   └── agent_prompts.py     # Prompts for different agent types
+│   │
+│   ├── pytest/                  # Test suite
+│   │   ├── test_calendar_model.py # Tests for calendar functionality
+│   │   ├── test_agent_model.py  # Tests for agent functionality
+│   │   └── pytest.ini           # Pytest configuration
 │   │
 │   └── ui/                      # User interface components (V in MVC)
 │       ├── app.py               # Main application UI class
@@ -34,15 +39,9 @@ ai_calendar/
 │           └── css.py           # Textual UI styling
 │
 ├── data/                        # Data storage
-│   ├── events.json              # Calendar events storage
-│   ├── settings.json            # Application settings storage
-│   └── settings_default         # Default settings storage
+│   └── events.json              # Calendar events storage
 │
-├── requirements.txt             # Project dependencies
-│
-└── tests/                       # Test suite (to be implemented)
-    ├── test_calendar_model.py   # Tests for calendar functionality
-
+└── requirements.txt             # Project dependencies
 ```
 
 ## Features
