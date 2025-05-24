@@ -27,6 +27,7 @@ class CalendarApp(App):
         super().__init__()
         self.controller = controller
         self.events = []
+        self.conversation_history = []  # Store conversation history for context
 
     async def on_mount(self):
         """Initialize UI and apply theme."""
@@ -50,8 +51,20 @@ class CalendarApp(App):
             upcoming_events = []
             for event in all_month_events:
                 start_time_obj = event.get("start_time")
+                # Handle both string and datetime objects
                 if isinstance(start_time_obj, datetime):
                     if start_time_obj.date() >= today_date:
+                        upcoming_events.append(event)
+                elif isinstance(start_time_obj, str):
+                    try:
+                        # Parse ISO format datetime string
+                        parsed_dt = datetime.fromisoformat(
+                            start_time_obj.replace("Z", "+00:00")
+                        )
+                        if parsed_dt.date() >= today_date:
+                            upcoming_events.append(event)
+                    except ValueError:
+                        # If parsing fails, include the event to be safe
                         upcoming_events.append(event)
 
             self._update_ui_with_events(upcoming_events_for_list=upcoming_events)
@@ -132,13 +145,31 @@ class CalendarApp(App):
         chat_container = self.query_one("#chat-container")
 
         try:
-            # Get AI response (this might take some time)
-            assistant_text = await self.controller.process_chat(user_input)
+            # Add current user input to conversation history
+            self.conversation_history.append({"role": "user", "content": user_input})
 
-            # Add assistant message
+            # Get AI response with conversation history for context
+            assistant_text = await self.controller.process_chat_with_history(
+                user_input, self.conversation_history
+            )
+
+            # Add assistant response to conversation history
+            self.conversation_history.append(
+                {"role": "assistant", "content": assistant_text}
+            )
+
+            # Keep conversation history manageable (last 20 messages)
+            if len(self.conversation_history) > 20:
+                self.conversation_history = self.conversation_history[-20:]
+
+            # Add assistant message to UI
             assistant_msg = MessageWidget("Assistant", assistant_text)
             chat_container.mount(assistant_msg)
             chat_container.scroll_end(animate=False)
+
+            # Reload events in case a new event was created
+            await self.load_events()
+
         except Exception as e:
             traceback.print_exc()
             # Show error message in chat

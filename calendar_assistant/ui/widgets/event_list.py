@@ -92,20 +92,56 @@ class EventList(VerticalScroll):
         """Create a static widget for an event."""
         title = event.get("title", "Untitled Event")
 
-        # event times are now expected to be datetime objects or None
+        # Handle both string and datetime objects for start/end times
         event_start_dt = event.get("start_time")
         event_end_dt = event.get("end_time")
 
-        display_start_time = self._format_time(event_start_dt)
-        display_end_time = self._format_time(event_end_dt)
+        # Parse string datetimes to datetime objects for processing
+        parsed_start_dt = None
+        parsed_end_dt = None
+
+        if isinstance(event_start_dt, str):
+            try:
+                parsed_start_dt = datetime.fromisoformat(
+                    event_start_dt.replace("Z", "+00:00")
+                )
+            except ValueError:
+                pass
+        elif isinstance(event_start_dt, datetime):
+            parsed_start_dt = event_start_dt
+
+        if isinstance(event_end_dt, str):
+            try:
+                parsed_end_dt = datetime.fromisoformat(
+                    event_end_dt.replace("Z", "+00:00")
+                )
+            except ValueError:
+                pass
+        elif isinstance(event_end_dt, datetime):
+            parsed_end_dt = event_end_dt
+
+        # Smart time formatting - show only time for end if same day
+        display_start_time = self._format_time(parsed_start_dt)
+
+        if (
+            parsed_start_dt
+            and parsed_end_dt
+            and parsed_start_dt.date() == parsed_end_dt.date()
+        ):
+            # Same day - just show time for end
+            display_end_time = parsed_end_dt.strftime("%H:%M")
+        else:
+            # Different day or missing date - show full format
+            display_end_time = self._format_time(parsed_end_dt)
+
         description = event.get("description", "")
 
         # Determine panel border style and time text style
         panel_border_style = "blue"  # Default
         time_text_style = "bold blue"  # Default
 
-        if event_start_dt:  # Check if event_start_dt is not None
-            if event_start_dt.date() == datetime.now().date():
+        if parsed_start_dt:  # Check if we have a valid parsed datetime
+            if parsed_start_dt.date() == datetime.now().date():
                 panel_border_style = "green"  # Today's event
                 time_text_style = "bold green"  # Today's event
 
@@ -125,8 +161,15 @@ class EventList(VerticalScroll):
         widget_id = f"event-{event.get('id', index)}"
         return Static(panel, id=widget_id, classes="event-item")
 
-    def _format_time(self, time_obj: Optional[datetime]):
+    def _format_time(self, time_obj):
         """Format a datetime object for display, or return a placeholder string."""
         if isinstance(time_obj, datetime):
             return time_obj.strftime("%Y-%m-%d %H:%M")
-        return "N/A"  # Return placeholder if time_obj is None or not a datetime
+        elif isinstance(time_obj, str):
+            try:
+                # Try to parse string and format it
+                parsed_dt = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
+                return parsed_dt.strftime("%Y-%m-%d %H:%M")
+            except ValueError:
+                return time_obj  # Return the string as-is if parsing fails
+        return "N/A"  # Return placeholder if time_obj is None or unexpected type

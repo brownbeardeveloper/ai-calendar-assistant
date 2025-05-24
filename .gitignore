@@ -33,3 +33,7 @@ venv/
 # Ignore other temporary or unnecessary files
 *.swp
 *.swo
+
+# Google Calendar API credentials
+credentials.json
+token.json
