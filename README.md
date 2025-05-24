@@ -1,4 +1,4 @@
-# AI Calendar Assistant
+# AI Calendar Assistant version 0.1.0
 
 A modern, intelligent calendar assistant that manages your schedule through natural language interactions with Google Calendar integration.
 
