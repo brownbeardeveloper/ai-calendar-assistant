@@ -8,6 +8,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -243,32 +244,86 @@ class GoogleCalendarModel:
             "description": event_data.get("description", ""),
         }
 
+        # Get the user's local timezone in a format Google Calendar accepts
+        local_tz = datetime.now().astimezone().tzinfo
+
+        # Try to get a proper timezone name that Google accepts
+        # First try to get the zone name from the timezone object
+        try:
+            if hasattr(local_tz, "zone"):
+                tz_name = local_tz.zone  # For pytz timezones
+            elif hasattr(local_tz, "key"):
+                tz_name = local_tz.key  # For zoneinfo timezones
+            else:
+                # Fall back to system timezone name
+                tz_name = (
+                    time.tzname[time.daylight] if time.daylight else time.tzname[0]
+                )
+                # If we get something like 'CEST', map it to a proper timezone
+                if tz_name in ["CEST", "CET"]:
+                    tz_name = (
+                        "Europe/Stockholm"  # Assuming you're in Sweden based on CEST
+                    )
+                elif tz_name in ["EST", "EDT"]:
+                    tz_name = "America/New_York"
+                elif tz_name in ["PST", "PDT"]:
+                    tz_name = "America/Los_Angeles"
+                else:
+                    # Default to UTC if we can't determine
+                    tz_name = "UTC"
+        except:
+            # If all else fails, use UTC
+            tz_name = "UTC"
+
         # Handle start time - accept both string and datetime objects
         if event_data.get("start_time"):
             start_time_value = event_data["start_time"]
             if isinstance(start_time_value, str):
-                start_dt = datetime.fromisoformat(start_time_value)
+                # Parse the datetime string
+                try:
+                    start_dt = datetime.fromisoformat(
+                        start_time_value.replace("Z", "+00:00")
+                    )
+                except ValueError:
+                    start_dt = datetime.fromisoformat(start_time_value)
+
+                # If no timezone info, assume user's local timezone
+                if start_dt.tzinfo is None:
+                    start_dt = start_dt.replace(tzinfo=local_tz)
             else:
                 # Assume it's already a datetime object
                 start_dt = start_time_value
+                if start_dt.tzinfo is None:
+                    start_dt = start_dt.replace(tzinfo=local_tz)
 
             google_event["start"] = {
                 "dateTime": start_dt.isoformat(),
-                "timeZone": "UTC",
+                "timeZone": tz_name,
             }
 
         # Handle end time - accept both string and datetime objects
         if event_data.get("end_time"):
             end_time_value = event_data["end_time"]
             if isinstance(end_time_value, str):
-                end_dt = datetime.fromisoformat(end_time_value)
+                try:
+                    end_dt = datetime.fromisoformat(
+                        end_time_value.replace("Z", "+00:00")
+                    )
+                except ValueError:
+                    end_dt = datetime.fromisoformat(end_time_value)
+
+                # If no timezone info, assume user's local timezone
+                if end_dt.tzinfo is None:
+                    end_dt = end_dt.replace(tzinfo=local_tz)
             else:
                 # Assume it's already a datetime object
                 end_dt = end_time_value
+                if end_dt.tzinfo is None:
+                    end_dt = end_dt.replace(tzinfo=local_tz)
 
             google_event["end"] = {
                 "dateTime": end_dt.isoformat(),
-                "timeZone": "UTC",
+                "timeZone": tz_name,
             }
 
         # Handle location

@@ -23,7 +23,9 @@ class CalendarDisplay(Static):
 
     def on_mount(self):
         """Handle the widget mount event."""
-        self.border_title = f"Calendar - {self.current_date.strftime('%B %Y')}"
+        month_year = self.current_date.strftime("%B %Y")
+        legend = "🟢1 event 🟡2-3 events 🔴4+ events | Weekends: Bold"
+        self.border_title = f"Calendar - {month_year} | {legend}"
         self.update()
 
     def render(self):
@@ -61,6 +63,9 @@ class CalendarDisplay(Static):
                     # Date cell
                     date_text = Text(str(day))
 
+                    # Check if it's a weekend (Saturday=5, Sunday=6)
+                    is_weekend = weekday in [5, 6]  # Saturday and Sunday
+
                     # Highlight current day
                     is_today = (
                         day == datetime.now().day
@@ -68,16 +73,37 @@ class CalendarDisplay(Static):
                         and year == datetime.now().year
                     )
 
-                    if is_today:
-                        date_text.stylize("bold reverse")
-
-                    # Check for events on this day
+                    # Check for events on this day and count them
                     day_events = self._get_events_for_day(year, month, day)
-                    if day_events:
-                        if is_today:
-                            date_text.stylize("bold reverse blue")
+                    event_count = len(day_events)
+
+                    # Apply styling based on priority: today > events > weekend
+                    if is_today:
+                        if event_count == 0:
+                            date_text.stylize("bold reverse")
+                        elif event_count == 1:
+                            date_text.stylize("bold reverse green")
+                        elif event_count <= 3:
+                            date_text.stylize("bold reverse yellow")
                         else:
-                            date_text.stylize("bold blue")
+                            date_text.stylize("bold reverse red")
+                    elif event_count > 0:
+                        # Event density color coding
+                        if event_count == 1:
+                            base_style = "bold green"
+                        elif event_count <= 3:
+                            base_style = "bold yellow"
+                        else:  # 4 or more events
+                            base_style = "bold red"
+
+                        # Add weekend styling if applicable
+                        if is_weekend:
+                            date_text.stylize(f"{base_style} italic")
+                        else:
+                            date_text.stylize(base_style)
+                    elif is_weekend:
+                        # Weekend without events - just bold
+                        date_text.stylize("bold")
 
                     row.append(date_text)
                     day += 1
@@ -97,9 +123,39 @@ class CalendarDisplay(Static):
         for e in self.events:
             event_start_time = e.get("start_time")
 
+            # Handle both string (ISO format) and datetime objects
             if isinstance(event_start_time, datetime):
-                if day_start_dt <= event_start_time < day_end_exclusive_dt:
-                    events_for_day.append(e)
+                event_dt = event_start_time
+            elif isinstance(event_start_time, str):
+                try:
+                    # Parse ISO format string (with or without timezone)
+                    if event_start_time.endswith("Z"):
+                        event_dt = datetime.fromisoformat(
+                            event_start_time.replace("Z", "+00:00")
+                        )
+                    elif "+" in event_start_time or event_start_time.count("-") > 2:
+                        event_dt = datetime.fromisoformat(event_start_time)
+                    else:
+                        # Assume UTC if no timezone
+                        event_dt = datetime.fromisoformat(event_start_time)
+
+                    # Convert to local timezone for comparison if timezone-aware
+                    if event_dt.tzinfo is not None:
+                        # Convert to local timezone for day comparison
+                        local_tz = datetime.now().astimezone().tzinfo
+                        event_dt = event_dt.astimezone(local_tz).replace(tzinfo=None)
+
+                except (ValueError, TypeError):
+                    # Skip events with invalid datetime formats
+                    continue
+            else:
+                # Skip events without valid start time
+                continue
+
+            # Check if event falls on this day
+            if day_start_dt <= event_dt < day_end_exclusive_dt:
+                events_for_day.append(e)
+
         return events_for_day
 
     def set_view(self, view_type):
@@ -132,7 +188,9 @@ class CalendarDisplay(Static):
                         month=self.current_date.month + 1
                     )
 
-            self.border_title = f"Calendar - {self.current_date.strftime('%B %Y')}"
+            month_year = self.current_date.strftime("%B %Y")
+            legend = "🟢1 event 🟡2-3 events 🔴4+ events | Weekends: Bold"
+            self.border_title = f"Calendar - {month_year} | {legend}"
             self.update()
 
     def highlight_events(self, events):

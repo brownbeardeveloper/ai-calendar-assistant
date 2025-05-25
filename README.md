@@ -1,83 +1,74 @@
-# AI Calendar Assistant version 0.1.0
+# MVC Structured Personal Calendar App with Python's Textual Sync with Google Calendar
 
-A modern, intelligent calendar assistant that manages your schedule through natural language interactions with Google Calendar integration.
+![App Screenshot](screenshots/calendar_app.png)
 
-## Features
+## 💬 Conversation Example & Limits
 
-- 🗣️ **Natural Language Processing**: Create events using conversational language
-- 📅 **Google Calendar Sync**: Full synchronization with Google Calendar
-- 🔍 **Smart Event Search**: Find events by date, time, or description
-- 🤖 **AI-Powered**: Uses OpenAI for intelligent event parsing
-- 🎨 **Modern TUI**: Terminal interface with Textual
-- ⚡ **Date Context Aware**: Properly interprets relative dates like "today", "yesterday"
+```bash
+User: "Create meeting at 4pm today"
+AI: ✅ Created 'Meeting' for today at 4:00 PM
 
-## Quick Start
+User: "Send invite to john@email.com"  
+AI: ✅ Added john@email.com to your meeting at 4:00 PM
 
-1. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+User: "Show my calendar"
+AI: 📅 Today: Meeting (4:00 PM) 🟢
+```
 
-2. **Configure OpenAI API**
-   ```bash
-   # Create .env file
-   echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-   ```
+**Limits**: OpenAI API rate limits, Google Calendar API quotas, 10 events max per bulk operation
 
-3. **Set up Google Calendar**
-   ```bash
-   python3 scripts/setup_google_calendar.py
-   ```
+## 🛠️ Frameworks & Libraries
 
-4. **Run the assistant**
-   ```bash
-   python3 main.py
-   ```
+- **UI**: Python Textual (Terminal UI)
+- **AI**: OpenAI GPT + LangChain agents  
+- **Calendar**: Google Calendar API
+- **Structure**: MVC Pattern
 
-## Usage Examples
+**Use MVC for new repos**: Copy `controller/`, `models/`, `ui/` structure. Replace models with your data layer, keep controller logic, adapt UI widgets.
 
-- "Create a meeting with John tomorrow at 3pm"
-- "Schedule lunch with Sarah on Friday at noon"
-- "Show me my events for today"
-- "What do I have scheduled yesterday?"
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 ai_calendar/
+├── main.py                    # Entry point
 ├── calendar_assistant/
-│   ├── config/               # Configuration constants
-│   ├── controller/           # Business logic controllers
+│   ├── controller/           # MVC Controller
 │   │   └── app_controller.py
-│   ├── models/               # Data models & API integrations
+│   ├── models/              # MVC Model  
 │   │   ├── google_calendar_model.py
 │   │   └── supervisor_model.py
-│   ├── prompts/              # AI agent prompts
-│   │   └── agent_prompts.py
-│   ├── pytest/              # Internal tests
-│   └── ui/                   # Terminal user interface
-│       ├── app.py
-│       └── widgets/          # UI components
-├── scripts/                  # Setup utilities
-│   └── setup_google_calendar.py
-├── tests/                    # Test suite
-├── main.py                   # Application entry point
-├── requirements.txt          # Python dependencies
-└── .env                      # Environment variables (create this)
+│   ├── ui/                  # MVC View
+│   │   ├── app.py           # Main UI app
+│   │   └── widgets/calendar_display.py
+│   └── prompts/             # AI system prompts
+└── scripts/                 # Setup utilities
 ```
 
-## Architecture
+## 🚀 Quick Start
 
-- **FastAPI-style**: Clean separation of concerns
-- **Modern Python**: Type hints, async/await patterns
-- **LangChain Agents**: AI-powered calendar operations
-- **Google Calendar API**: Real-time synchronization
-- **Date Context Injection**: Accurate relative date interpretation
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
 
-## Dependencies
+# 2. Setup Google Calendar API
+python scripts/setup_google_calendar.py
 
-Core: `openai`, `langchain`, `textual`, `google-api-python-client`, `python-dotenv`
+# 3. Create .env file with your API keys
+# .env should contain:
+OPENAI_API_KEY=your-openai-api-key
+OPENAI_MODEL=gpt-4
 
----
+# 4. Run
+python main.py
+```
 
-Built with Python, OpenAI, and Google Calendar API.
+## 🎯 Features
+
+- 🤖 **Conversational AI**: Natural language → calendar events
+- 🎨 **Visual Calendar**: Color-coded event density  
+- 🚦 **Conflict Detection**: Prevents double-booking
+- 🔒 **Security**: Audit trails, confirmation prompts
+- 📅 **Google Sync**: Real-time calendar synchronization
+- 🕐 **Timezone Aware**: Handles global scheduling
+
+**Perfect for**: Personal productivity, AI calendar automation, terminal-based workflow integration.
