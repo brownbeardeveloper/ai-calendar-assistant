@@ -1,4 +1,5 @@
-# MVC Structured Personal Calendar App with Python's Textual Sync with Google Calendar
+# MVC Structured Personal Calendar App with Python's Textual Sync with Google Calendar 
+### version 0.2.0
 
 ![App Screenshot](screenshots/calendar_app.png)
 
